@@ -241,6 +241,7 @@ window.addEventListener('DOMContentLoaded', () => {
 		"menu__item"
 	).rendor();
 
+	// Forms
 const forms = document.querySelectorAll('form');
 
 const messages = {
