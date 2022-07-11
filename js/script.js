@@ -113,8 +113,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	//  Modal
 
 	const modalTrigger = document.querySelectorAll('[data-modal]'),
-		modal = document.querySelector('.modal'),
-		modalCloseBtn = document.querySelector('[data-close]');
+		modal = document.querySelector('.modal');
 
 
 	function openModal() {
@@ -134,11 +133,10 @@ window.addEventListener('DOMContentLoaded', () => {
 		document.body.style.overflow = '';
 	}
 
-	modalCloseBtn.addEventListener('click', closeModal);
 
 	modal.addEventListener('click', (e) => {
 
-		if (e.target === modal) {
+		if (e.target === modal || e.target.getAttribute('data-close') == '') {
 			closeModal();
 		}
 	});
@@ -150,7 +148,7 @@ window.addEventListener('DOMContentLoaded', () => {
 		}
 	});
 
-	// const openTimeId = setTimeout(openModal, 5000);
+	const openTimeId = setTimeout(openModal, 50000);
 
 
 
@@ -245,7 +243,7 @@ window.addEventListener('DOMContentLoaded', () => {
 const forms = document.querySelectorAll('form');
 
 const messages = {
-	loading: 'Load...',
+	loading: 'img/form/spinner.svg',
 	success: 'Ok!Go go go!',
 	faild: 'Something wrong...'
 };
@@ -258,10 +256,13 @@ function formData(form) {
 form.addEventListener('submit', (e) => {
 	e.preventDefault();
 
-	const statusDate = document.createElement('div');
-	statusDate.classList.add('status');
-	statusDate.textContent = messages.loading;
-	form.append(statusDate);
+	const statusDate = document.createElement('img');
+	statusDate.src = messages.loading;
+	statusDate.style.cssText = `
+		display: block;
+		margin: 0 auto;
+	`;
+	form.insertAdjacentElement('afterend', statusDate);
 
 
 	const request = new XMLHttpRequest();
@@ -279,22 +280,42 @@ formData.forEach(function(value, key) {
 
 const json = JSON.stringify(obj);
 
-
 	request.send(json);
 	request.addEventListener('load', () => {
 		if(request.status === 200) {
-			statusDate.textContent = messages.success;
+			console.log(request.response);
+			 showThanksModal(messages.success);
 			form.reset();
-			setTimeout(() => {
-				statusDate.remove();
-			},2000);
+		statusDate.remove();
 		} else {
-			statusDate.textContent = messages.faild;
+			showThanksModal(messages.faild);
 		}
 	});
 });
+}
 
-	
+function showThanksModal(message) {
+	const prevModalDialog = document.querySelector('.modal__dialog');
+	prevModalDialog.classList.add('hide');
+	openModal();
+
+	const thanksModal = document.createElement('div');
+	thanksModal.classList.add('modal__dialog');
+	thanksModal.innerHTML = `
+	<div class="modal__content">
+		<div data-close class="modal__close">&times;</div>
+		<div class="modal__title">${message}</div>
+	</div>
+	`;
+
+	document.querySelector('.modal').append(thanksModal);
+	setTimeout(() => {
+			thanksModal.remove();
+			prevModalDialog.classList.add('show');
+			prevModalDialog.classList.remove('hide');
+			closeModal();
+	}, 4000);
+
 }
 
 });
